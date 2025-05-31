@@ -35,6 +35,56 @@
       --border-color: #4A5568; /* Darker border */
     }
 
+    /* Added styles for new note sections */
+    .note-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .note-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding-left: 2px;
+    }
+
+    .single-line-textarea, .multi-line-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .single-line-textarea {
+      resize: none;
+      overflow-y: hidden; /* Prevent scrollbar if content overflows single line */
+    }
+
+    .multi-line-textarea {
+      resize: vertical;
+      min-height: calc(1.5em * 10 + 20px + 4px); /* Approx 10 lines (13px font, 1.5lh) + 10px*2 padding + 2px*2 border */
+    }
+
+    .single-line-textarea:focus, .multi-line-textarea:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(32, 171, 223, 0.1);
+      background: var(--bg-primary);
+    }
+
+    .single-line-textarea::placeholder, .multi-line-textarea::placeholder {
+      color: var(--text-light);
+      font-style: italic;
+    }
+    /* End of added styles */
+
     * {
       box-sizing: border-box;
     }
@@ -390,6 +440,18 @@
       box-shadow: var(--shadow-md);
     }
 
+    .btn-docid {
+      background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); /* DarkGoldenRod to DarkerGoldenRod */
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-docid:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%); /* Invert gradient on hover for effect */
+    }
+
     .recent-notes {
       display: none;
       flex: 1;
@@ -715,16 +777,31 @@
 
   <div class="content">
     <div class="notes-container" id="notesTab">
-      <textarea id="notesTextarea" placeholder="Write your notes for this page here..."></textarea>
-      <div class="actions">
-        <button class="btn-primary" id="saveBtn">Save</button>
-        <button class="btn-secondary" id="docIdBtn">Doc ID</button>
-        <button class="btn-secondary" id="downloadBtn">Download</button>
-        <button class="btn-secondary" id="clearBtn">Clear</button>
+      <div class="note-section">
+        <label class="note-label" for="docIdTextarea">Doc ID</label>
+        <textarea id="docIdTextarea" class="single-line-textarea" rows="1" placeholder="Paste Doc ID here..."></textarea>
+      </div>
+      <div class="note-section">
+        <label class="note-label" for="statusTextarea">Status</label>
+        <textarea id="statusTextarea" class="multi-line-textarea" rows="10" placeholder="Enter status notes here..."></textarea>
+      </div>
+      <div class="note-section">
+        <label class="note-label" for="correctionTextarea">Self Evident Correction</label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <textarea id="correctionTextarea" class="single-line-textarea" rows="1" placeholder="Enter correction details here..." style="flex-grow: 1;"></textarea>
+          <div class="stepper-controls" style="display: flex; flex-direction: column;">
+            <button id="increaseSecBtn" class="btn-secondary btn-stepper" style="padding: 5px 8px; min-height: unset; font-size: 10px; line-height: 1; border-width: 1px; border-bottom-width: 0; border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;">+</button>
+            <button id="decreaseSecBtn" class="btn-secondary btn-stepper" style="padding: 5px 8px; min-height: unset; font-size: 10px; line-height: 1; border-width: 1px; border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);">-</button>
+          </div>
+        </div>
       </div>
       <div class="actions">
+        <button class="btn-docid" id="docIdBtn">Doc ID</button>
         <button class="btn-pass" id="passBtn">Pass</button>
         <button class="btn-issue" id="issueBtn">Issue</button>
+        <button class="btn-primary" id="saveBtn">Save</button>
+        <button class="btn-secondary" id="downloadBtn">Download</button>
+        <button class="btn-secondary" id="clearBtn">Clear</button>
       </div>
     </div>
 
@@ -733,6 +810,9 @@
         <button class="btn-secondary" id="clearAllBtn">Clear All</button>
       </div>
       <div id="recentNotesList"></div>
+      <div class="actions" style="margin-top: 15px;">
+        <button class="btn-primary" id="exportCsvBtn">Export .CSV</button>
+      </div>
     </div>
   </div>
 

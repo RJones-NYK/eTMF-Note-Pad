@@ -1,6 +1,10 @@
 const themeToggle = document.getElementById('theme-checkbox');
 const body = document.body;
 
+// Emojis for theme toggle
+const sunEmoji = '☀️';
+const moonEmoji = '🌙';
+
 // Function to apply the selected theme
 function applyTheme(theme) {
   if (theme === 'dark') {
@@ -52,13 +56,20 @@ async function loadNotes() {
   const result = await chrome.storage.local.get([currentUrl]);
   const notes = result[currentUrl];
   
-  if (notes && notes.content) {
-    // Always show existing notes when revisiting a URL
-    console.log('Found existing notes for this URL:', notes.content.substring(0, 50) + '...');
-    document.getElementById('notesTextarea').value = notes.content;
+  const docIdTextarea = document.getElementById('docIdTextarea');
+  const statusTextarea = document.getElementById('statusTextarea');
+  const correctionTextarea = document.getElementById('correctionTextarea');
+
+  if (notes) {
+    console.log('Found existing notes for this URL:', notes);
+    docIdTextarea.value = notes.docId || '';
+    statusTextarea.value = notes.status || '';
+    correctionTextarea.value = notes.correction || '';
   } else {
     console.log('No existing notes found for this URL');
-    document.getElementById('notesTextarea').value = '';
+    docIdTextarea.value = '';
+    statusTextarea.value = '';
+    correctionTextarea.value = '';
   }
   
   // Don't automatically check for doc ID anymore
@@ -83,13 +94,20 @@ async function requestDocIdExtraction() {
 // Save notes with auto-save functionality
 let saveTimeout;
 async function saveNotes(showIndicator = true) {
-  const content = document.getElementById('notesTextarea').value;
+  const docId = document.getElementById('docIdTextarea').value;
+  const status = document.getElementById('statusTextarea').value;
+  const correction = document.getElementById('correctionTextarea').value;
   
   if (!currentUrl) return;
   
   // Save the note
   const noteData = {
-    content: content,
+    docId: docId,
+    status: status,
+    correction: correction,
+    // For recent notes display, we'll use a combined field or a primary field.
+    // Let's create a summary for 'content' for now.
+    content: `Doc ID: ${docId}\\nStatus: ${status}\\nCorrection: ${correction}`,
     url: currentUrl,
     domain: currentDomain,
     timestamp: Date.now(),
@@ -122,7 +140,10 @@ async function updateRecentNotes(url, noteData) {
   recentNotes.unshift({
     url: url,
     domain: noteData.domain,
-    content: noteData.content || '',
+    content: noteData.content,
+    docId: noteData.docId,
+    status: noteData.status,
+    correction: noteData.correction,
     timestamp: noteData.timestamp,
     title: noteData.title,
     isFavorited: wasFavorited
@@ -145,11 +166,15 @@ function showSaveIndicator() {
 
 // Download notes as text file
 function downloadNotes() {
-  const content = document.getElementById('notesTextarea').value;
+  const docId = document.getElementById('docIdTextarea').value;
+  const status = document.getElementById('statusTextarea').value;
+  const correction = document.getElementById('correctionTextarea').value;
+
   const filename = `notes_${currentDomain}_${new Date().toISOString().split('T')[0]}.txt`;
   
-  const blob = new Blob([`URL: ${currentUrl}\nDate: ${new Date().toLocaleString()}\n\n${content}`], 
-    { type: 'text/plain' });
+  const fileContent = `URL: ${currentUrl}\nDate: ${new Date().toLocaleString()}\n\nDoc ID:\n${docId}\n\nStatus:\n${status}\n\nSelf Evident Correction:\n${correction}`;
+
+  const blob = new Blob([fileContent], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   
   const a = document.createElement('a');
@@ -164,7 +189,9 @@ function downloadNotes() {
 // Clear notes for current URL
 async function clearNotes() {
   if (confirm('Are you sure you want to clear notes for this page?')) {
-    document.getElementById('notesTextarea').value = '';
+    document.getElementById('docIdTextarea').value = '';
+    document.getElementById('statusTextarea').value = '';
+    document.getElementById('correctionTextarea').value = '';
     await chrome.storage.local.remove([currentUrl]);
     
     // Also remove from recent notes
@@ -245,10 +272,15 @@ async function loadRecentNotes() {
         <div class="recent-notes-group-title">${title}</div>
         ${notes.map(note => {
           const date = new Date(note.timestamp).toLocaleString();
-          const preview = note.content.substring(0, 100) + (note.content.length > 100 ? '...' : '');
+          // The 'content' field is a summary string prepared by saveNotes
+          const preview = (note.content || '').substring(0, 100) + ((note.content || '').length > 100 ? '...' : '');
           
           return `
-            <div class="recent-note-item ${note.isFavorited ? 'favorited' : ''}" data-url="${note.url}">
+            <div class="recent-note-item ${note.isFavorited ? 'favorited' : ''}" 
+                 data-url="${note.url}" 
+                 data-docid="${encodeURIComponent(note.docId || '')}" 
+                 data-status="${encodeURIComponent(note.status || '')}" 
+                 data-correction="${encodeURIComponent(note.correction || '')}">
               <div class="recent-note-actions">
                 <button class="note-action-btn favorite-btn ${note.isFavorited ? 'active' : ''}" 
                         data-url="${note.url}" title="Favorite">⭐</button>
@@ -272,6 +304,38 @@ async function loadRecentNotes() {
   html += renderGroup('Older', groups.older);
   
   container.innerHTML = html || '<div class="empty-state">No recent notes yet</div>';
+
+  // Add event listeners to recent note items to load them on click
+  document.querySelectorAll('.recent-note-item').forEach(item => {
+    item.addEventListener('click', async (event) => {
+      // Don't trigger if a button inside the item was clicked
+      if (event.target.closest('.note-action-btn')) return;
+
+      const url = item.dataset.url;
+      const docId = decodeURIComponent(item.dataset.docid);
+      const status = decodeURIComponent(item.dataset.status);
+      const correction = decodeURIComponent(item.dataset.correction);
+
+      // Switch to the notes tab
+      document.querySelector('.tab[data-tab="notes"]').click();
+      
+      // Populate the textareas
+      document.getElementById('docIdTextarea').value = docId;
+      document.getElementById('statusTextarea').value = status;
+      document.getElementById('correctionTextarea').value = correction;
+      
+      // Update currentUrl and save (or just load if currentUrl matches)
+      // For simplicity, we can treat this as loading a new note context
+      const newCurrentUrl = url;
+      if (currentUrl !== newCurrentUrl) {
+        currentUrl = newCurrentUrl;
+        currentDomain = new URL(currentUrl).hostname;
+        document.getElementById('currentUrl').textContent = currentUrl;
+        // Optionally, we could re-save here if we want clicking a recent note to also make it the "active" save target
+        // For now, it just populates the fields. User needs to save manually if they edit.
+      }
+    });
+  });
 }
 
 // Tab switching
@@ -372,40 +436,16 @@ async function scanForDocId() {
 
 // Handle Pass button click
 async function handlePassClick() {
-  const textarea = document.getElementById('notesTextarea');
-  const currentContent = textarea.value;
-  const passText = "No issues detected";
-  
-  // Add the pass text to the textarea
-  if (currentContent.trim()) {
-    textarea.value = currentContent + '\n' + passText;
-  } else {
-    textarea.value = passText;
-  }
-  
-  // Save the notes automatically
-  await saveNotes(true);
+  const statusTextarea = document.getElementById('statusTextarea');
+  statusTextarea.value = "The user detected no issues with this record";
+  saveNotes(); // Auto-save after adding status
 }
 
 // Handle Issue button click
 async function handleIssueClick() {
-  const textarea = document.getElementById('notesTextarea');
-  const currentContent = textarea.value;
-  const issueText = "Issue detected, a QI should be raised\nPlease describe the issue for later:\n";
-  
-  // Add the issue text to the textarea
-  if (currentContent.trim()) {
-    textarea.value = currentContent + '\n' + issueText;
-  } else {
-    textarea.value = issueText;
-  }
-  
-  // Focus the textarea and position cursor at the end
-  textarea.focus();
-  textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-  
-  // Save the notes automatically
-  await saveNotes(true);
+  const statusTextarea = document.getElementById('statusTextarea');
+  statusTextarea.value = "The user has detected a issue with this record, more details can be found below:\n";
+  saveNotes(); // Auto-save after adding status
 }
 
 // Toggle URL visibility
@@ -501,12 +541,86 @@ document.getElementById('clearAllBtn').addEventListener('click', clearAllNotes);
 document.getElementById('passBtn').addEventListener('click', handlePassClick);
 document.getElementById('issueBtn').addEventListener('click', handleIssueClick);
 document.getElementById('urlToggle').addEventListener('click', toggleUrl);
+document.getElementById('exportCsvBtn').addEventListener('click', exportRecentNotesAsCsv);
 
-// Auto-save on input with debouncing
-document.getElementById('notesTextarea').addEventListener('input', () => {
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => saveNotes(false), 1000);
+// SEC Stepper controls
+const correctionTextarea = document.getElementById('correctionTextarea');
+const increaseSecBtn = document.getElementById('increaseSecBtn');
+const decreaseSecBtn = document.getElementById('decreaseSecBtn');
+
+if (increaseSecBtn && decreaseSecBtn && correctionTextarea) {
+  increaseSecBtn.addEventListener('click', () => {
+    let currentValue = parseInt(correctionTextarea.value, 10);
+    if (isNaN(currentValue)) {
+      currentValue = 0;
+    }
+    correctionTextarea.value = currentValue + 1;
+    saveNotes(false); // Auto-save without indicator
+  });
+
+  decreaseSecBtn.addEventListener('click', () => {
+    let currentValue = parseInt(correctionTextarea.value, 10);
+    if (isNaN(currentValue)) {
+      currentValue = 0;
+    }
+    if (currentValue > 0) {
+      correctionTextarea.value = currentValue - 1;
+      saveNotes(false); // Auto-save without indicator
+    }
+  });
+}
+
+// Auto-save on input with debouncing for each new textarea
+const textareasToAutoSave = ['docIdTextarea', 'statusTextarea', 'correctionTextarea'];
+textareasToAutoSave.forEach(textareaId => {
+  const textarea = document.getElementById(textareaId);
+  if (textarea) {
+    textarea.addEventListener('input', () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => saveNotes(false), 1000); // Save without indicator for auto-saves
+    });
+  }
 });
+
+// Function to export recent notes as CSV
+async function exportRecentNotesAsCsv() {
+  const result = await chrome.storage.local.get(['recentNotes']);
+  const recentNotes = result.recentNotes || [];
+
+  if (recentNotes.length === 0) {
+    alert('No recent notes to export.');
+    return;
+  }
+
+  let csvContent = "Doc ID,Status,SEC,Date,Time\n"; // CSV Header
+
+  recentNotes.forEach(note => {
+    const date = new Date(note.timestamp);
+    const dateString = date.toLocaleDateString();
+    // Include timezone abbreviation in the time string
+    const timeString = date.toLocaleTimeString(navigator.language, { timeZoneName:'short' });
+    
+    // Ensure values are properly escaped for CSV (e.g., handle commas within fields)
+    const docId = note.docId ? `"${note.docId.replace(/"/g, '""')}"` : '';
+    const status = note.status ? `"${note.status.replace(/"/g, '""')}"` : '';
+    const correction = note.correction ? `"${note.correction.replace(/"/g, '""')}"` : '';
+
+    csvContent += `${docId},${status},${correction},${dateString},"${timeString}"\n`;
+  });
+
+  const filename = `recent_notes_${new Date().toISOString().split('T')[0]}.csv`;
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showSaveIndicator(); // Optional: Show a success indicator
+}
 
 // Listen for tab changes and doc ID extractions
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -530,40 +644,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Handle extracted doc ID
 async function handleDocIdExtraction(docId) {
-  const textarea = document.getElementById('notesTextarea');
-  const currentContent = textarea.value;
-  const docIdPrefix = `Doc ID: ${docId}\n\n`;
-  
-  // Check if this doc ID is already at the start of the notes
-  if (!currentContent.startsWith(docIdPrefix)) {
-    // If there's existing content, preserve it
-    if (currentContent.trim()) {
-      // Check if there's a different doc ID at the start
-      const existingDocIdMatch = currentContent.match(/^Doc ID: .+\n\n/);
-      if (existingDocIdMatch) {
-        // Replace the old doc ID with the new one
-        textarea.value = currentContent.replace(existingDocIdMatch[0], docIdPrefix);
-      } else {
-        // Add doc ID to the beginning
-        textarea.value = docIdPrefix + currentContent;
-      }
-    } else {
-      // No existing content, just add the doc ID
-      textarea.value = docIdPrefix;
-    }
-    
-    // Save the updated notes immediately and disable auto-save temporarily
-    clearTimeout(saveTimeout);
-    await saveNotes(true);
-    
-    // Re-enable auto-save after a delay
-    setTimeout(() => {
-      saveTimeout = null;
-    }, 1000);
-    
-    // Show success feedback
-    showSaveIndicator();
-  }
+  console.log('Received extracted Doc ID:', docId);
+  const docIdTextarea = document.getElementById('docIdTextarea');
+  docIdTextarea.value = docId; 
+  // Optionally, you might want to automatically save or focus another field
+  // For now, just populate the field.
+  // saveNotes(false); // Save without showing indicator, if desired
 }
 
 // Initialize - notify background that side panel is ready
