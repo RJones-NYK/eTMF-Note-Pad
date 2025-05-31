@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>URL Notes</title>
+  <title>eTMF Note Pad</title>
   <style>
     :root {
       --primary-purple: #3D1E88;
@@ -20,6 +20,19 @@
       --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
       --border-radius: 12px;
       --border-radius-sm: 8px;
+    }
+
+    body.dark-mode {
+      --primary-purple: #5A48A5; /* Lighter purple for dark mode */
+      --primary-blue: #3FB8E3; /* Lighter blue for dark mode */
+      --light-purple: rgba(90, 72, 165, 0.2);
+      --light-blue: rgba(63, 184, 227, 0.2);
+      --text-primary: #E2E8F0; /* Off-white for text */
+      --text-secondary: #A0AEC0; /* Lighter grey for secondary text */
+      --text-light: #718096; /* Even lighter grey */
+      --bg-primary: #1A202C; /* Dark navy */
+      --bg-secondary: #2D3748; /* Slightly lighter navy for secondary bg */
+      --border-color: #4A5568; /* Darker border */
     }
 
     * {
@@ -62,6 +75,9 @@
     .header-content {
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .header h1 {
@@ -78,8 +94,67 @@
       font-size: 18px;
     }
 
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .theme-switch {
+      display: inline-block;
+      height: 20px;
+      position: relative;
+      width: 40px;
+    }
+
+    .theme-switch input {
+      display:none;
+    }
+
+    .slider {
+      background-color: #ccc;
+      bottom: 0;
+      cursor: pointer;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: .4s;
+    }
+
+    .slider:before {
+      background-color: #fff;
+      bottom: 2px;
+      content: "";
+      height: 16px;
+      left: 2px;
+      position: absolute;
+      transition: .4s;
+      width: 16px;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-blue);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .slider.round {
+      border-radius: 20px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+
     .url-container {
       margin-top: 12px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .url-toggle {
@@ -619,7 +694,13 @@
 <body>
   <div class="header">
     <div class="header-content">
-      <h1>URL Notes</h1>
+      <h1>Record Notes</h1>
+      <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="theme-checkbox">
+          <input type="checkbox" id="theme-checkbox" />
+          <div class="slider round"></div>
+        </label>
+      </div>
       <div class="url-container">
         <button class="url-toggle" id="urlToggle">Show URL</button>
         <div class="current-url" id="currentUrl">Loading...</div>
