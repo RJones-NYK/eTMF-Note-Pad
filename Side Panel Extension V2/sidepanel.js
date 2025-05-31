@@ -1,3 +1,37 @@
+const themeToggle = document.getElementById('theme-checkbox');
+const body = document.body;
+
+// Function to apply the selected theme
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    body.classList.add('dark-mode');
+    if (themeToggle) themeToggle.checked = true;
+  } else {
+    body.classList.remove('dark-mode');
+    if (themeToggle) themeToggle.checked = false;
+  }
+}
+
+// Function to toggle theme and save preference
+function toggleTheme() {
+  const selectedTheme = themeToggle.checked ? 'dark' : 'light';
+  applyTheme(selectedTheme);
+  chrome.storage.local.set({ theme: selectedTheme });
+}
+
+// Load saved theme or default to light
+async function loadTheme() {
+  const result = await chrome.storage.local.get(['theme']);
+  const savedTheme = result.theme || 'light'; // Default to light theme
+  applyTheme(savedTheme);
+}
+
+// Initialize theme when the script loads
+if (themeToggle) {
+  themeToggle.addEventListener('change', toggleTheme);
+}
+loadTheme(); // Load theme initially
+
 let currentUrl = '';
 let currentDomain = '';
 

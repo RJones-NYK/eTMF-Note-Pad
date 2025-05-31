@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "URL Notes Sidebar",
+  "name": "eTMF Note Pad",
   "version": "1.0",
   "description": "Take notes for each URL with a persistent sidebar",
   "permissions": [
