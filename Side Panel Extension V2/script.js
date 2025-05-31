@@ -120,26 +120,26 @@
       docIdFound = false;
       
       // Extract Doc ID after a short delay to allow content to load
-      setTimeout(() => {
-        extractAndSendDocId(false); // Not user requested
-      }, 500);
+      // setTimeout(() => {
+      //   extractAndSendDocId(false); // Not user requested
+      // }, 500); // Let's rely on user click or more specific mutation observation
     }
   }
 
   // Initial extraction when script loads
   console.log('Running initial Doc ID extraction');
-  setTimeout(() => {
-    extractAndSendDocId(false); // Not user requested
-  }, 500);
+  // setTimeout(() => {
+  //  extractAndSendDocId(false); // Not user requested
+  // }, 500);
 
   // Add continuous polling as a fallback for dynamic content
-  let pollingInterval = setInterval(() => {
-    // Only poll if we haven't found a Doc ID yet or if the URL has changed
-    if (!docIdFound || window.location.href !== currentUrl) {
-      console.log('Polling for Doc ID...');
-      extractAndSendDocId(false); // Not user requested
-    }
-  }, 1000); // Poll every 1 second for faster detection
+  // let pollingInterval = setInterval(() => {
+  //   // Only poll if we haven't found a Doc ID yet or if the URL has changed
+  //   if (!docIdFound || window.location.href !== currentUrl) {
+  //     console.log('Polling for Doc ID...');
+  //     extractAndSendDocId(false); // Not user requested
+  //   }
+  // }, 1000); // Poll every 1 second for faster detection
 
   // Listen for requests to extract doc ID
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -208,7 +208,7 @@
       clearTimeout(observer.timeout);
       observer.timeout = setTimeout(() => {
         console.log('DOM changed significantly, re-extracting Doc ID');
-        extractAndSendDocId(false); // Not user requested
+        // extractAndSendDocId(false); // Not user requested -- Let's disable this automatic call
       }, 100); // Reduced delay for faster response
     }
   });
@@ -247,18 +247,18 @@
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       console.log('Page became visible, re-extracting Doc ID');
-      setTimeout(() => {
-        extractAndSendDocId(false); // Not user requested
-      }, 300);
+      // setTimeout(() => {
+      //   extractAndSendDocId(false); // Not user requested -- Let's disable this automatic call
+      // }, 300);
     }
   });
 
   // Watch for focus events (when user switches back to tab)
   window.addEventListener('focus', () => {
     console.log('Window gained focus, re-extracting Doc ID');
-    setTimeout(() => {
-      extractAndSendDocId(false); // Not user requested
-    }, 300);
+    // setTimeout(() => {
+    //   extractAndSendDocId(false); // Not user requested -- Let's disable this automatic call
+    // }, 300);
   });
 
   console.log('Doc ID extractor content script initialized - looking for DocumentNumber element and rdvtxtMDdocid element');

@@ -271,7 +271,16 @@ async function loadRecentNotes() {
       <div class="recent-notes-group">
         <div class="recent-notes-group-title">${title}</div>
         ${notes.map(note => {
-          const date = new Date(note.timestamp).toLocaleString();
+          const dateOptions = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          };
+          const date = new Date(note.timestamp).toLocaleString(undefined, dateOptions);
           // The 'content' field is a summary string prepared by saveNotes
           const preview = (note.content || '').substring(0, 100) + ((note.content || '').length > 100 ? '...' : '');
           
