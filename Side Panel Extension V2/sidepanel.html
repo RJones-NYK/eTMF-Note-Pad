@@ -440,6 +440,18 @@
       box-shadow: var(--shadow-md);
     }
 
+    .btn-docid {
+      background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); /* DarkGoldenRod to DarkerGoldenRod */
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-docid:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%); /* Invert gradient on hover for effect */
+    }
+
     .recent-notes {
       display: none;
       flex: 1;
@@ -775,17 +787,21 @@
       </div>
       <div class="note-section">
         <label class="note-label" for="correctionTextarea">Self Evident Correction</label>
-        <textarea id="correctionTextarea" class="single-line-textarea" rows="1" placeholder="Enter correction details here..."></textarea>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <textarea id="correctionTextarea" class="single-line-textarea" rows="1" placeholder="Enter correction details here..." style="flex-grow: 1;"></textarea>
+          <div class="stepper-controls" style="display: flex; flex-direction: column;">
+            <button id="increaseSecBtn" class="btn-secondary btn-stepper" style="padding: 5px 8px; min-height: unset; font-size: 10px; line-height: 1; border-width: 1px; border-bottom-width: 0; border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;">+</button>
+            <button id="decreaseSecBtn" class="btn-secondary btn-stepper" style="padding: 5px 8px; min-height: unset; font-size: 10px; line-height: 1; border-width: 1px; border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);">-</button>
+          </div>
+        </div>
       </div>
       <div class="actions">
-        <button class="btn-primary" id="saveBtn">Save</button>
-        <button class="btn-secondary" id="docIdBtn">Doc ID</button>
-        <button class="btn-secondary" id="downloadBtn">Download</button>
-        <button class="btn-secondary" id="clearBtn">Clear</button>
-      </div>
-      <div class="actions">
+        <button class="btn-docid" id="docIdBtn">Doc ID</button>
         <button class="btn-pass" id="passBtn">Pass</button>
         <button class="btn-issue" id="issueBtn">Issue</button>
+        <button class="btn-primary" id="saveBtn">Save</button>
+        <button class="btn-secondary" id="downloadBtn">Download</button>
+        <button class="btn-secondary" id="clearBtn">Clear</button>
       </div>
     </div>
 
@@ -794,6 +810,9 @@
         <button class="btn-secondary" id="clearAllBtn">Clear All</button>
       </div>
       <div id="recentNotesList"></div>
+      <div class="actions" style="margin-top: 15px;">
+        <button class="btn-primary" id="exportCsvBtn">Export .CSV</button>
+      </div>
     </div>
   </div>
 

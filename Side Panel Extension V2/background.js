@@ -82,3 +82,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   }
 });
+
+// Handle the extension icon click to toggle the side panel
+chrome.action.onClicked.addListener((tab) => {
+  // 'tab' is the active tab where the icon was clicked.
+  // For a global side panel (default_path set), open it for the current window.
+  chrome.sidePanel.open({ windowId: tab.windowId });
+});

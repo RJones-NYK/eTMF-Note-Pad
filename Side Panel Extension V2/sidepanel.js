@@ -1,6 +1,10 @@
 const themeToggle = document.getElementById('theme-checkbox');
 const body = document.body;
 
+// Emojis for theme toggle
+const sunEmoji = '☀️';
+const moonEmoji = '🌙';
+
 // Function to apply the selected theme
 function applyTheme(theme) {
   if (theme === 'dark') {
@@ -433,18 +437,14 @@ async function scanForDocId() {
 // Handle Pass button click
 async function handlePassClick() {
   const statusTextarea = document.getElementById('statusTextarea');
-  const timestamp = new Date().toLocaleString();
-  const currentText = statusTextarea.value;
-  statusTextarea.value = currentText + (currentText ? '\n' : '') + `Pass - ${timestamp}`;
+  statusTextarea.value = "The user detected no issues with this record";
   saveNotes(); // Auto-save after adding status
 }
 
 // Handle Issue button click
 async function handleIssueClick() {
   const statusTextarea = document.getElementById('statusTextarea');
-  const timestamp = new Date().toLocaleString();
-  const currentText = statusTextarea.value;
-  statusTextarea.value = currentText + (currentText ? '\n' : '') + `Issue - ${timestamp}`;
+  statusTextarea.value = "The user has detected a issue with this record, more details can be found below:\n";
   saveNotes(); // Auto-save after adding status
 }
 
@@ -541,6 +541,34 @@ document.getElementById('clearAllBtn').addEventListener('click', clearAllNotes);
 document.getElementById('passBtn').addEventListener('click', handlePassClick);
 document.getElementById('issueBtn').addEventListener('click', handleIssueClick);
 document.getElementById('urlToggle').addEventListener('click', toggleUrl);
+document.getElementById('exportCsvBtn').addEventListener('click', exportRecentNotesAsCsv);
+
+// SEC Stepper controls
+const correctionTextarea = document.getElementById('correctionTextarea');
+const increaseSecBtn = document.getElementById('increaseSecBtn');
+const decreaseSecBtn = document.getElementById('decreaseSecBtn');
+
+if (increaseSecBtn && decreaseSecBtn && correctionTextarea) {
+  increaseSecBtn.addEventListener('click', () => {
+    let currentValue = parseInt(correctionTextarea.value, 10);
+    if (isNaN(currentValue)) {
+      currentValue = 0;
+    }
+    correctionTextarea.value = currentValue + 1;
+    saveNotes(false); // Auto-save without indicator
+  });
+
+  decreaseSecBtn.addEventListener('click', () => {
+    let currentValue = parseInt(correctionTextarea.value, 10);
+    if (isNaN(currentValue)) {
+      currentValue = 0;
+    }
+    if (currentValue > 0) {
+      correctionTextarea.value = currentValue - 1;
+      saveNotes(false); // Auto-save without indicator
+    }
+  });
+}
 
 // Auto-save on input with debouncing for each new textarea
 const textareasToAutoSave = ['docIdTextarea', 'statusTextarea', 'correctionTextarea'];
@@ -553,6 +581,46 @@ textareasToAutoSave.forEach(textareaId => {
     });
   }
 });
+
+// Function to export recent notes as CSV
+async function exportRecentNotesAsCsv() {
+  const result = await chrome.storage.local.get(['recentNotes']);
+  const recentNotes = result.recentNotes || [];
+
+  if (recentNotes.length === 0) {
+    alert('No recent notes to export.');
+    return;
+  }
+
+  let csvContent = "Doc ID,Status,SEC,Date,Time\n"; // CSV Header
+
+  recentNotes.forEach(note => {
+    const date = new Date(note.timestamp);
+    const dateString = date.toLocaleDateString();
+    // Include timezone abbreviation in the time string
+    const timeString = date.toLocaleTimeString(navigator.language, { timeZoneName:'short' });
+    
+    // Ensure values are properly escaped for CSV (e.g., handle commas within fields)
+    const docId = note.docId ? `"${note.docId.replace(/"/g, '""')}"` : '';
+    const status = note.status ? `"${note.status.replace(/"/g, '""')}"` : '';
+    const correction = note.correction ? `"${note.correction.replace(/"/g, '""')}"` : '';
+
+    csvContent += `${docId},${status},${correction},${dateString},"${timeString}"\n`;
+  });
+
+  const filename = `recent_notes_${new Date().toISOString().split('T')[0]}.csv`;
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showSaveIndicator(); // Optional: Show a success indicator
+}
 
 // Listen for tab changes and doc ID extractions
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
