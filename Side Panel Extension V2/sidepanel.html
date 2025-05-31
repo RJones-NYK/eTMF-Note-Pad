@@ -35,6 +35,56 @@
       --border-color: #4A5568; /* Darker border */
     }
 
+    /* Added styles for new note sections */
+    .note-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .note-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding-left: 2px;
+    }
+
+    .single-line-textarea, .multi-line-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .single-line-textarea {
+      resize: none;
+      overflow-y: hidden; /* Prevent scrollbar if content overflows single line */
+    }
+
+    .multi-line-textarea {
+      resize: vertical;
+      min-height: calc(1.5em * 10 + 20px + 4px); /* Approx 10 lines (13px font, 1.5lh) + 10px*2 padding + 2px*2 border */
+    }
+
+    .single-line-textarea:focus, .multi-line-textarea:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(32, 171, 223, 0.1);
+      background: var(--bg-primary);
+    }
+
+    .single-line-textarea::placeholder, .multi-line-textarea::placeholder {
+      color: var(--text-light);
+      font-style: italic;
+    }
+    /* End of added styles */
+
     * {
       box-sizing: border-box;
     }
@@ -715,7 +765,18 @@
 
   <div class="content">
     <div class="notes-container" id="notesTab">
-      <textarea id="notesTextarea" placeholder="Write your notes for this page here..."></textarea>
+      <div class="note-section">
+        <label class="note-label" for="docIdTextarea">Doc ID</label>
+        <textarea id="docIdTextarea" class="single-line-textarea" rows="1" placeholder="Paste Doc ID here..."></textarea>
+      </div>
+      <div class="note-section">
+        <label class="note-label" for="statusTextarea">Status</label>
+        <textarea id="statusTextarea" class="multi-line-textarea" rows="10" placeholder="Enter status notes here..."></textarea>
+      </div>
+      <div class="note-section">
+        <label class="note-label" for="correctionTextarea">Self Evident Correction</label>
+        <textarea id="correctionTextarea" class="single-line-textarea" rows="1" placeholder="Enter correction details here..."></textarea>
+      </div>
       <div class="actions">
         <button class="btn-primary" id="saveBtn">Save</button>
         <button class="btn-secondary" id="docIdBtn">Doc ID</button>
