@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Doc ID Extraction</title>
+</head>
+<body>
+    <h1>Test Page for Doc ID Extraction</h1>
+    
+    <p>This is a test page with the DocumentNumber element:</p>
+    
+    <div vofvalue="" valuekey="VV-TMF-02118" attrkey="DocumentNumber" class="doc_info_property_value vv_docinfo_value docInfoValue-DocumentNumber">
+        VV-TMF-02118
+    </div>
+    
+    <p>The extension should be able to extract "VV-TMF-02118" from the above element.</p>
+    
+    <script>
+        // Test the selector in the browser console
+        console.log('Testing selector [attrkey="DocumentNumber"]:');
+        const element = document.querySelector('[attrkey="DocumentNumber"]');
+        if (element) {
+            console.log('Element found:', element);
+            console.log('Text content:', element.textContent.trim());
+        } else {
+            console.log('Element not found');
+        }
+    </script>
+</body>
+</html>

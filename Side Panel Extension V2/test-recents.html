@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test Recent Notes Features</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #555;
+      margin-bottom: 15px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f8f9fa;
+      border-left: 4px solid #20ABDF;
+      border-radius: 4px;
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .status.complete {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .test-note {
+      background: #e9ecef;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    code {
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Recent Notes Features - Test Page</h1>
+  
+  <div class="test-section">
+    <h2>✨ New Features Implemented</h2>
+    <ul class="feature-list">
+      <li>
+        <strong>Delete Individual Notes</strong>
+        <span class="status complete">COMPLETE</span>
+        <br>
+        Red X button appears on hover to delete individual recent notes
+      </li>
+      <li>
+        <strong>Favorite Notes</strong>
+        <span class="status complete">COMPLETE</span>
+        <br>
+        Star button to favorite notes and pin them at the top of the list
+      </li>
+      <li>
+        <strong>Age-based Grouping</strong>
+        <span class="status complete">COMPLETE</span>
+        <br>
+        Notes are grouped into: Favorites, Today, Yesterday, This Week, and Older
+      </li>
+    </ul>
+  </div>
+
+  <div class="test-section">
+    <h2>🧪 Testing Instructions</h2>
+    <ol>
+      <li>Open the Chrome extension side panel</li>
+      <li>Navigate to different websites and add notes</li>
+      <li>Go to the "Recent Notes" tab</li>
+      <li>Test the following:
+        <ul>
+          <li>Hover over notes to see the action buttons</li>
+          <li>Click the star (⭐) to favorite/unfavorite notes</li>
+          <li>Click the X (✕) to delete individual notes</li>
+          <li>Check that favorited notes appear at the top</li>
+          <li>Verify notes are grouped by age correctly</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+
+  <div class="test-section">
+    <h2>📋 Implementation Details</h2>
+    <div class="test-note">
+      <h3>Storage Structure:</h3>
+      <ul>
+        <li><code>recentNotes</code> - Array of note objects with URL, content, timestamp, etc.</li>
+        <li><code>favoriteNotes</code> - Array of URLs that are favorited</li>
+      </ul>
+      
+      <h3>Visual Changes:</h3>
+      <ul>
+        <li>Favorited notes have a golden background (#fffbf0) and border</li>
+        <li>Action buttons appear on hover with smooth transitions</li>
+        <li>Groups have visual separators with gradient accent bars</li>
+      </ul>
+      
+      <h3>Functionality:</h3>
+      <ul>
+        <li>Notes persist across browser sessions</li>
+        <li>Maximum of 50 recent notes are stored (increased from 10)</li>
+        <li>Deleting a note also removes it from favorites if applicable</li>
+        <li>Clicking on a note (outside action buttons) opens the URL in a new tab</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>🎨 Design Decisions</h2>
+    <p>The grouping by age uses the following time ranges:</p>
+    <ul>
+      <li><strong>Favorites:</strong> All favorited notes regardless of age</li>
+      <li><strong>Today:</strong> Notes created in the last 24 hours</li>
+      <li><strong>Yesterday:</strong> Notes created 24-48 hours ago</li>
+      <li><strong>This Week:</strong> Notes created 2-7 days ago</li>
+      <li><strong>Older:</strong> Notes created more than 7 days ago</li>
+    </ul>
+  </div>
+
+</body>
+</html>
