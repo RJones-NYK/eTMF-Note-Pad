@@ -34,12 +34,6 @@ Validation: Ensures Doc IDs start with "PG" prefix
 Manual Trigger: "Doc ID" button to manually scan current page
 Dynamic Content: Monitors DOM changes for single-page applications
 
-📋 TMF Artifact Recognition
-
-Database: Includes 250+ TMF artifacts from clinical trial reference model
-Auto-highlighting: Detects and highlights TMF artifacts on web pages
-Comprehensive Coverage: 11 zones including Trial Management, Regulatory, Site Management, etc.
-
 📚 Recent Notes Management
 
 Age-based Grouping:
@@ -171,20 +165,7 @@ Edit files and reload the extension in chrome://extensions/
 Check browser console for debugging information
 Use Chrome DevTools to inspect the side panel
 
-📚 TMF Artifact Database
-The extension includes a comprehensive database of TMF artifacts organized by:
 
-11 Zones: Trial Management, Central Trial Documents, Investigational Product, Laboratory, Regulatory, Site Management, Monitoring, Data Management, Safety, Quality Assurance, Statistics
-Multiple Sections: Each zone contains relevant sections
-250+ Artifacts: Complete artifact definitions and dating conventions
-
-Example Zones:
-
-Trial Management - Plans, oversight, meetings
-Regulatory - Approvals, submissions, ethics committees
-Site Management - Site selection, monitoring, agreements
-Safety - Adverse events, safety reports
-Data Management - Database design, validation, locks
 
 🤝 Contributing
 We welcome contributions! Please:
