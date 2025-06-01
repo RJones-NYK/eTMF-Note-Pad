@@ -1,7 +1,7 @@
 eTMF Note Pad Chrome Extension
 A Chrome extension designed for clinical trial professionals to efficiently take notes and manage Trial Master File (TMF) documentation across web pages.
 🎯 Overview
-eTMF Note Pad provides a persistent side panel for note-taking with specialized features for clinical trial document management. The extension automatically detects document IDs and TMF artifacts, making it easier to track and annotate trial documentation.
+eTMF Note Pad provides a persistent side panel for note-taking with specialized features for clinical trial document management. The extension automatically detects document IDs, making it easier to track and annotate trial documentation.
 ✨ Features
 📝 Note Taking
 
@@ -111,8 +111,7 @@ File Structure
 ├── sidepanel.html         # Main UI layout
 ├── sidepanel.js           # Side panel functionality
 ├── script.js              # Content script for Doc ID extraction
-├── content.js             # TMF artifact detection
-├── data.js                # TMF artifact database
+├── content.js             # Content script functionality
 ├── test.html              # Test page for Doc ID extraction
 └── test-recents.html      # Test page for recent notes features
 Key Technologies
@@ -203,7 +202,6 @@ Include browser version, extension version, and steps to reproduce
 
 Built for clinical trial professionals working with TMF documentation
 Inspired by the need for efficient trial document management
-Uses TMF Reference Model standards for artifact classification
 
 
 Made with ❤️ for the clinical research community
